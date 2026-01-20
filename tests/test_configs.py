@@ -25,6 +25,25 @@ def test_docker_compose_services() -> None:
     assert "grafana" in services
 
 
+def test_docker_compose_ports_are_localhost_only() -> None:
+    data = load_yaml("docker-compose.yml")
+    services = data.get("services", {})
+    for name in ("prometheus", "grafana"):
+        ports = services.get(name, {}).get("ports", [])
+        assert ports, f"{name} has no ports configured"
+        assert all(str(p).startswith("127.0.0.1:") for p in ports)
+
+
+def test_grafana_credentials_are_env_driven() -> None:
+    data = load_yaml("docker-compose.yml")
+    grafana = data.get("services", {}).get("grafana", {})
+    env_file = grafana.get("env_file", [])
+    assert ".env" in env_file
+    environment = grafana.get("environment", {})
+    assert environment.get("GF_SECURITY_ADMIN_USER") == "${GRAFANA_ADMIN_USER}"
+    assert environment.get("GF_SECURITY_ADMIN_PASSWORD") == "${GRAFANA_ADMIN_PASSWORD}"
+
+
 def test_prometheus_scrape_target() -> None:
     data = load_yaml("prometheus/prometheus.yml")
     scrape_configs = data.get("scrape_configs", [])

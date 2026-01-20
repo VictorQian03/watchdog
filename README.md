@@ -18,11 +18,18 @@ curl http://localhost:9100/metrics | head
 ```
 
 ## Start the monitoring stack
+Create a local `.env` file with Grafana credentials:
+```bash
+cp .env.example .env
+# Edit .env and set a strong password
+```
+Do not commit `.env`.
+
 ```bash
 docker compose up -d
 ```
 
-Grafana: http://localhost:3000 (user: `admin`, password: `W203286w`)
+Grafana: http://localhost:3000 (user/password from `.env`)
 Prometheus: http://localhost:9090
 
 ## Dashboard
@@ -56,3 +63,4 @@ ruff format --check .
 - If Prometheus cannot reach node_exporter, replace `host.docker.internal:9100` in `prometheus/prometheus.yml` with your MacOS host IP.
 - If per-disk panels show pseudo filesystems, adjust the `fstype` filter in `grafana/dashboards/macos-host.json`.
 - RAM uses a macOS-friendly query: `node_memory_free_bytes + node_memory_inactive_bytes`. You can confirm available memory metrics in Prometheus with `node_memory_.*` and adjust if your node_exporter build uses different names.
+- Data persistence: Grafana and Prometheus use named volumes. `docker compose down` keeps data, `docker compose down -v` removes it.

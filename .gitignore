@@ -19,6 +19,7 @@ venv/
 ENV/
 env/
 .ENV/
+.env
 
 # Test and lint caches
 .pytest_cache/
